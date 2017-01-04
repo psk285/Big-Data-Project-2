@@ -1,0 +1,31 @@
+# Hive Hue Editor: Creating tables, loading data and joining the tables.
+create table students_abroad (country string, years int, no_of_students int, id string) comment "No. of students going to study abroad"
+row format delimited
+fields terminated by '\t'
+lines terminated by '\n'
+tblproperties("skip.header.line.count"="1");
+
+create TABLE gdp (country string, years int, gdp bigint, id string) COMMENT "Gross Domestic Product of Country"
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '\t'
+LINES TERMINATED BY '\n'
+tblproperties("skip.header.line.count"="1");
+
+create TABLE educational_expenditure (country string, years int, expenditure int, id string) COMMENT "Expenditure on Education in %"
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '\t'
+LINES TERMINATED BY '\n'
+tblproperties("skip.header.line.count"="1");
+
+Load data local inpath '/home/cloudera/Desktop/gdp_modified.txt' into table gdp;
+Load data local inpath '/home/cloudera/Desktop/students_abroad.txt' into table students_abroad;
+Load data local inpath '/home/cloudera/Desktop/education_expenditure.txt' into table educational_expenditure;
+
+select students_abroad.country as country, students_abroad.years as years, students_abroad.number_of_students as students, 
+gdp as gdp, educational_expenditure.expenditure as expenditure
+from students_abroad_mod 
+JOIN educational_expenditure on (educational_expenditure.id = students_abroad.id)
+JOIN gdp on (gdp.id = students_abroad_mod.id);
+
+#On Terminal: To export the joined data as a CSV.
+hive -e 'select * from main_data’ > /home/cloudera/Desktop/main_data.csv
